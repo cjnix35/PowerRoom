@@ -2,6 +2,8 @@ import React, { useEffect } from "react";
 import { useLocalStorage } from "./useLocalStorage";
 import { IToggle } from "./types/IToggle";
 import ToggleList from "./components/ToggleList";
+import { RefreshProvider } from "./RefreshContext";
+
 const App = () => {
   const [toggles, setToggles] = useLocalStorage<IToggle[]>("toggles", []);
 
@@ -9,34 +11,34 @@ const App = () => {
   const IP = import.meta.env.VITE_IP;
   const SEC_KEY = import.meta.env.VITE_SECKEY;
 
+  const fetchToggles = async () => {
+    const response = await fetch(`${IP}/getCurrentState`);
+    const data = await response.json();
+
+    // Toggles from server comes without names , so we initialize the names
+    const togglesWithNames: IToggle[] = data.map((fetchedToggle: IToggle) => {
+      // Find corresponding toggle in local storage
+      const storedToggle = toggles.find(
+        (toggle) => toggle.id === fetchedToggle.id
+      );
+
+      // If the storedToggle exists, use the fetchedToggle (updated state) and add the stored name
+      // Otherwise, use the fetchedToggle and set name to an empty string
+      return storedToggle
+        ? {
+            ...fetchedToggle,
+            name: storedToggle.name,
+          }
+        : {
+            ...fetchedToggle,
+            name: "",
+          };
+    });
+
+    setToggles(togglesWithNames);
+  };
+
   useEffect(() => {
-    const fetchToggles = async () => {
-      const response = await fetch(`${IP}/getCurrentState`);
-      const data = await response.json();
-
-      // Toggles from server comes without names , so we initialize the names
-      const togglesWithNames: IToggle[] = data.map((fetchedToggle: IToggle) => {
-        // Find corresponding toggle in local storage
-        const storedToggle = toggles.find(
-          (toggle) => toggle.id === fetchedToggle.id
-        );
-
-        // If the storedToggle exists, use the fetchedToggle (updated state) and add the stored name
-        // Otherwise, use the fetchedToggle and set name to an empty string
-        return storedToggle
-          ? {
-              ...fetchedToggle,
-              name: storedToggle.name,
-            }
-          : {
-              ...fetchedToggle,
-              name: "",
-            };
-      });
-
-      setToggles(togglesWithNames);
-    };
-
     fetchToggles();
   }, []);
 
@@ -52,6 +54,7 @@ const App = () => {
       `${String(import.meta.env.VITE_IP)}/switchToggle`,
       {
         method: "POST",
+
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id,
@@ -73,14 +76,15 @@ const App = () => {
     }
   };
   return (
-    <div className="flex flex-col items-center justify-center text-center h-screen">
-      <h1>Toggle List</h1>
-      <ToggleList
-        toggles={toggles}
-        updateToggleName={updateToggleName}
-        switchToggle={switchToggle}
-      />
-    </div>
+    <RefreshProvider value={fetchToggles}>
+      <div className="flex h-screen select-none flex-col items-center justify-center py-16 text-center">
+        <ToggleList
+          toggles={toggles}
+          updateToggleName={updateToggleName}
+          switchToggle={switchToggle}
+        />
+      </div>
+    </RefreshProvider>
   );
 };
 

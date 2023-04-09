@@ -1,11 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocalStorage } from "./useLocalStorage";
 import { IToggle } from "./types/IToggle";
 import ToggleList from "./components/ToggleList";
 import { RefreshProvider } from "./RefreshContext";
-
+import Refresh from "./components/Refresh";
 const App = () => {
   const [toggles, setToggles] = useLocalStorage<IToggle[]>("toggles", []);
+  const [runAnimation, setRunAnimation] = useState(false);
 
   // Import environment variables
   const IP = import.meta.env.VITE_IP;
@@ -75,14 +76,26 @@ const App = () => {
       setToggles(toggles);
     }
   };
+
+  const handleBackgroundAnimation = () => {
+    setRunAnimation(true);
+    setTimeout(() => {
+      setRunAnimation(false);
+    }, 2000);
+  };
   return (
     <RefreshProvider value={fetchToggles}>
-      <div className="flex h-screen select-none flex-col items-center justify-center py-16 text-center">
+      <div
+        className={`${
+          runAnimation ? "animate-bgAnimation" : " "
+        } flex h-screen select-none  flex-col items-center justify-center bg-gradient-BG py-16 text-center`}
+      >
         <ToggleList
           toggles={toggles}
           updateToggleName={updateToggleName}
           switchToggle={switchToggle}
         />
+        <Refresh onBgAnimate={handleBackgroundAnimation} />
       </div>
     </RefreshProvider>
   );

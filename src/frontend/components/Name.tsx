@@ -12,7 +12,7 @@ const Name: React.FC<NameProps> = ({ value, onChange, placeholder }) => {
       value={value}
       onChange={onChange}
       placeholder={placeholder}
-      className="h-full w-full text-ellipsis rounded-lg bg-transparent px-4 py-2 text-gray-900 focus:border-blue-500 focus:outline-none"
+      className="h-full w-full truncate rounded-lg bg-transparent py-4 px-4 text-gray-900 placeholder-gray-600 focus:outline-none sm:text-base md:text-xl xl:text-2xl"
     />
   );
 };

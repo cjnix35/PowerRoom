@@ -14,9 +14,9 @@ const ToggleItem: React.FC<ToggleItemProps> = ({
   switchToggle,
 }) => {
   return (
-    <li className=" flex h-12 items-center gap-4 rounded-full bg-neutral-100 pr-2">
+    <li className=" flex h-16 w-full  items-center gap-4 rounded-full border border-[rgba(196,126,252,0.7)] bg-white bg-opacity-25 pr-8 shadow-card backdrop-blur">
       <div
-        className={` h-full w-16 rounded-l-full transition-colors duration-200 ease-in-out ${
+        className={` h-full w-12 rounded-l-full transition-colors duration-200 ease-in-out ${
           toggle.isOn ? "bg-gradient-ON" : "bg-gradient-OFF"
         }`}
       ></div>

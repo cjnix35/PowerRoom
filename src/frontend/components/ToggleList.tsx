@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { IToggle } from "../types/IToggle";
 import ToggleItem from "./ToggleItem";
-import Refresh from "./Refresh";
+
 import ScrollIndicator from "./ScrollIndicator";
 
 interface ToggleListProps {
@@ -21,24 +21,24 @@ const ToggleList: React.FC<ToggleListProps> = ({
 
   const handleScroll = () => {
     if (listRef.current) {
-      const isScrolledToBottom =
-        listRef.current.scrollHeight - listRef.current.scrollTop ===
+      // Calculate the difference between scrollHeight, scrollTop, and clientHeight
+      const difference =
+        listRef.current.scrollHeight -
+        listRef.current.scrollTop -
         listRef.current.clientHeight;
 
+      // Define an acceptable margin to consider as the bottom of the scroll
+      const margin = 1;
+
       // Update the visibility state of ScrollIndicator based on whether the user has reached the bottom of the list
-      setShowScrollIndicator(!isScrolledToBottom);
+      setShowScrollIndicator(difference > margin);
     }
   };
-
-  // useEffect to reset the visibility of the ScrollIndicator when the toggles list changes
-  useEffect(() => {
-    setShowScrollIndicator(true);
-  }, [toggles]);
 
   return (
     <>
       <ul
-        className="hide-scrollbar flex flex-col gap-8 scroll-smooth"
+        className="hide-scrollbar flex h-3/4 flex-col gap-8 scroll-smooth rounded px-12  py-8  md:w-1/2 md:gap-11 xl:w-1/3 xl:gap-14"
         onScroll={handleScroll}
         ref={listRef}
       >
@@ -51,8 +51,10 @@ const ToggleList: React.FC<ToggleListProps> = ({
           />
         ))}
       </ul>
-      <ScrollIndicator isVisible={showScrollIndicator} />
-      <Refresh />
+
+      <div className="flex flex-col items-center justify-center gap-4">
+        <ScrollIndicator isVisible={showScrollIndicator} />
+      </div>
     </>
   );
 };
